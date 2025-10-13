@@ -20,22 +20,18 @@ public class SignupService {
     public User signup(SignupRequestDto dto) {
 
         // 중복 체크
-        if (userRepository.existsByLoginId(dto.getLoginId())) {
+        if (userRepository.existsByLoginId(dto.loginId())) {
             throw new IllegalArgumentException("이미 사용 중인 아이디 입니다.");
         }
-        if (userRepository.existsByNickname(dto.getNickname())) {
+        if (userRepository.existsByNickname(dto.nickname())) {
             throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
         }
 
         // 비밀번호 인코딩
-        String encodedPassword = passwordEncoder.encode(dto.getPassword());
+        String encodedPassword = passwordEncoder.encode(dto.password());
 
         // DTO -> Entity
-        User user = dto.toEntity();
-        user.setPassword(encodedPassword);
-
-        // 유저 저장 (PK 확보)
-        User saved = userRepository.save(user);
+        User saved = userRepository.save(dto.toEntity(encodedPassword));
 
         // 최종 엔티티 반환
         return saved;
