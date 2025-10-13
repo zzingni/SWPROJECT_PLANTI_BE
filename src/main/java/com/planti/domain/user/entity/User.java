@@ -1,5 +1,6 @@
 package com.planti.domain.user.entity;
 
+import com.nimbusds.openid.connect.sdk.claims.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,8 +32,11 @@ public class  User {
     @Column(length = 50, nullable = false, unique = true)
     private String nickname;
 
-    @Column(length = 10, nullable = false)
-    private String gender;
+    public enum Gender { MALE, FEMALE }
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender", columnDefinition = "gender_enum", nullable = false)
+    private Gender gender;
 
     @Column(nullable = false)
     private int age;
