@@ -48,6 +48,8 @@ public class SignupRequestDto {
                 .nickname(this.nickname)
                 .gender(this.gender)
                 .age(this.age)
+                .status("ACTIVE")
+                .authType("LOCAL")
                 .build();
     }
 }
