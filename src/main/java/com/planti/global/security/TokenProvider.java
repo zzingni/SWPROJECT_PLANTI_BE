@@ -5,6 +5,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +16,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -123,5 +126,38 @@ public class TokenProvider {
 
         // 권한은 여기선 비워둠 (필요하면 DB 조회해서 넣을 수 있음)
         return new UsernamePasswordAuthenticationToken(loginId, accessToken, Collections.emptyList());
+    }
+
+    // Authorization: Bearer xxx 또는 쿠키(refreshToken)에서 토큰 추출
+    public String extractToken(HttpServletRequest request) {
+        // 1) Authorization 헤더 우선
+        String auth = request.getHeader("Authorization");
+        if (auth != null && auth.startsWith("Bearer ")) {
+            return auth.substring(7);
+        }
+        // 2) 쿠키에서 refreshToken 찾기 (있다면)
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            return Arrays.stream(cookies)
+                    .filter(c -> "refreshToken".equals(c.getName()))
+                    .map(Cookie::getValue)
+                    .findFirst()
+                    .orElse(null);
+        }
+        return null;
+    }
+
+    // 리프레시 토큰에서 로그인ID를 꺼내 새 액세스 토큰 발급
+    public String createAccessTokenFromRefresh(String refreshToken) {
+        if (!validateToken(refreshToken)) {
+            throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
+        }
+        Claims claims = getClaims(refreshToken);
+        String loginId = claims.getSubject();
+
+        Authentication auth =
+                new UsernamePasswordAuthenticationToken(loginId, null, Collections.emptyList());
+
+        return createToken(auth); // 기존 createToken(Authentication) 재사용 (1시간 만료 등)
     }
 }
