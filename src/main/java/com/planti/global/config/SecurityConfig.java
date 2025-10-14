@@ -1,5 +1,8 @@
 package com.planti.global.config;
 
+import com.planti.global.oauth2.OAuth2LoginSuccessHandler;
+import com.planti.global.oauth2.OAuth2UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -18,7 +21,11 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final OAuth2UserService oAuth2UserService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -36,14 +43,19 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
-
+                        // OAuth2 로그인 흐름/콜백 허용
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**", "/login/oauth2/code/**").permitAll()
                         // 회원가입(인증 필요 없음)
                         .requestMatchers("/api/auth/**").permitAll()
-
                         // 나머지는 인증
                         .anyRequest().authenticated()
                 )
-
+                .oauth2Login(oauth -> oauth
+                        // 커스텀 유저 서비스 쓰는 경우
+                        .userInfoEndpoint(u -> u.userService(oAuth2UserService))
+                        // 성공 핸들러 등록 (JSON 바디 내려주는 핸들러)
+                        .successHandler(oAuth2LoginSuccessHandler)
+                )
                 // API 서버면 무상태
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
