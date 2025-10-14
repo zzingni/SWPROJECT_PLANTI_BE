@@ -57,4 +57,20 @@ public class  User {
         if (status == null) status = "ACTIVE";
         if (authType == null) authType = "LOCAL";
     }
+
+    // 소셜 신규 가입용 팩토리
+    public static User createOauthUser(String provider, String providerUserId, String nickname) {
+        String loginId = provider + "_" + providerUserId; // ex) kakao_123456
+        String randomPassword = java.util.UUID.randomUUID().toString(); // 임시 비번
+
+        return User.builder()
+                .loginId(loginId)
+                .password(randomPassword) // 저장은 하되 사용하진 않음
+                .nickname(nickname != null ? nickname : (provider + "_" + providerUserId))
+                .authType(provider.toUpperCase()) // ex) KAKAO
+                .gender(Gender.UNKNOWN) // 없는 경우 MALE/FEMALE 중 하나로 임시 지정
+                .age(0)                 // int NOT NULL이므로 0 같은 기본값
+                .status("ACTIVE")
+                .build();
+    }
 }
