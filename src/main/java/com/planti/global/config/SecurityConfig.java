@@ -46,6 +46,7 @@ public class SecurityConfig {
                         // OAuth2 로그인 흐름/콜백 허용
                         .requestMatchers("/oauth2/**", "/login/oauth2/**", "/login/oauth2/code/**").permitAll()
                         // 회원가입(인증 필요 없음)
+                        .requestMatchers("/api/auth/signup").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         // 나머지는 인증
                         .anyRequest().authenticated()
@@ -59,8 +60,29 @@ public class SecurityConfig {
                 // API 서버면 무상태
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // 폼로그인/HTTP Basic 비활성화 (JWT 등 토큰 기반 가정)
-                .formLogin(AbstractHttpConfigurer::disable)
+                // 로컬 로그인(JSON 응답) 추가
+                .formLogin(form -> form
+                        .loginProcessingUrl("/api/login")   // 프론트에서 POST 할 URL
+                        .usernameParameter("login_id")      // 파라미터명 맞추기
+                        .passwordParameter("password")
+                        .successHandler((req, res, auth) -> {
+                            res.setStatus(200);
+                            res.setContentType("application/json;charset=UTF-8");
+                            res.getWriter().write("{\"ok\":true}");
+                        })
+                        .failureHandler((req, res, ex) -> {
+                            res.setStatus(401);
+                            res.setContentType("application/json;charset=UTF-8");
+                            res.getWriter().write("{\"ok\":false,\"error\":\"invalid_credentials\"}");
+                        })
+                )
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint((req, res, ex) -> {
+                            res.setStatus(401);
+                            res.setContentType("application/json;charset=UTF-8");
+                            res.getWriter().write("{\"error\":\"unauthorized\"}");
+                        })
+                )
                 .httpBasic(AbstractHttpConfigurer::disable)
 
                 // 프론트 분리 시 CORS 허용
