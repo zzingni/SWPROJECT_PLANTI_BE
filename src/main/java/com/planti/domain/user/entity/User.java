@@ -51,6 +51,9 @@ public class  User {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @Column(name = "fcm_token") // fcm 토큰
+    private String fcmToken;
+
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) createdAt = LocalDateTime.now();
