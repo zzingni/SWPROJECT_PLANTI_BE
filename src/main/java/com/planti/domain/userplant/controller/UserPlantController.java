@@ -26,7 +26,7 @@ public class UserPlantController {
         userPlantService.saveUserPlant(user, requestDto);
 
         Map<String, String> response = new HashMap<>();
-        response.put("plantNickName", requestDto.getPlantNickName());
+        response.put("plantNickName", requestDto.getNickname());
 
         return ResponseEntity.ok(response);
     }

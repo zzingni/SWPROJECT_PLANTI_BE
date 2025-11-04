@@ -45,7 +45,7 @@ public class UserPlantService {
         UserPlant userPlant = UserPlant.builder()
                 .user(user)
                 .plant(plant)
-                .nickname(requestDto.getPlantNickName())
+                .nickname(requestDto.getNickname())
                 .wateringCycle(wateringCycle)
                 .status("ACTIVE")
                 .build();
