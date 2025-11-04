@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserPlantService {
@@ -52,5 +54,10 @@ public class UserPlantService {
 
         // 5. 저장
         return userPlantRepository.save(userPlant);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<UserPlant> getPlantByUserId(Long userId) {
+        return userPlantRepository.findByUser_UserId(userId);
     }
 }
