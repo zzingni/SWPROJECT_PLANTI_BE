@@ -58,6 +58,12 @@ public class  User {
         if (authType == null) authType = "LOCAL";
     }
 
+    @Column(length = 20)
+    private String provider; // "KAKAO"
+
+    @Column(length = 50)
+    String providerId;   // 카카오 id 문자열
+
     // 소셜 신규 가입용 팩토리
     public static User createOauthUser(String provider, String providerUserId, String nickname) {
         String loginId = provider + "_" + providerUserId; // ex) kakao_123456
@@ -67,6 +73,8 @@ public class  User {
                 .loginId(loginId)
                 .password(randomPassword) // 저장은 하되 사용하진 않음
                 .nickname(nickname != null ? nickname : (provider + "_" + providerUserId))
+                .provider(provider.toUpperCase())
+                .providerId(providerUserId)
                 .authType(provider.toUpperCase()) // ex) KAKAO
                 .gender(Gender.UNKNOWN) // 없는 경우 MALE/FEMALE 중 하나로 임시 지정
                 .age(0)                 // int NOT NULL이므로 0 같은 기본값

@@ -1,0 +1,46 @@
+package com.planti.domain.plant.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "character")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Plant {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "plant_id")
+    private Long plantId;
+
+    @Column(name = "plant_name", nullable = false, length = 50)
+    private String plantName;
+
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "temperature")
+    private Double temperature;
+
+    @Column(name = "humidity")
+    private Double humidity;
+
+    @Column(name = "watering_cycle")
+    private Integer wateringCycle; // 예: 3일마다 물주기 → 3
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+}

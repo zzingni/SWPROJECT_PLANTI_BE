@@ -57,8 +57,7 @@ public class SecurityConfig {
                         // 성공 핸들러 등록 (JSON 바디 내려주는 핸들러)
                         .successHandler(oAuth2LoginSuccessHandler)
                 )
-                // API 서버면 무상태
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
 
                 // 로컬 로그인(JSON 응답) 추가
                 .formLogin(form -> form
