@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class UserPlantRequestDto {
 
     @NotNull
-    private Integer plantId;       // plant_id
+    private long plantId;       // plant_id
 
     @NotNull
     private String plantName;      // 사용자 입력 이름
