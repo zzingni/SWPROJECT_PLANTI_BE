@@ -33,8 +33,9 @@ public class Plant {
     @Column(name = "humidity")
     private Double humidity;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "watering_cycle")
-    private Integer wateringCycle; // 예: 3일마다 물주기 → 3
+    private WateringCycle wateringCycle;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

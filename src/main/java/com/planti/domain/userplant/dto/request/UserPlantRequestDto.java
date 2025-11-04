@@ -18,5 +18,6 @@ public class UserPlantRequestDto {
     @NotNull
     private String plantName;      // 사용자 입력 이름
 
-    private Integer wateringCycle; // 물 주기 주기
+    @NotNull
+    private String wateringCycle; // 물 주기 주기
 }
