@@ -22,14 +22,14 @@ public class UserPlant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "companion_plant_id")
-    private Integer companionPlantId;
+    private Long companionPlantId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "plant_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "plant_id", nullable = false)
     private Plant plant;
 
     @Column(name = "nickname", nullable = false, length = 100)
