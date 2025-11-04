@@ -8,6 +8,7 @@ import com.planti.domain.user.repository.UserRepository;
 import com.planti.domain.userplant.dto.request.UserPlantRequestDto;
 import com.planti.domain.userplant.entity.UserPlant;
 import com.planti.domain.userplant.repository.UserPlantRepository;
+import com.planti.global.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,21 +25,27 @@ public class UserPlantService {
     public UserPlant saveUserPlant(User user, UserPlantRequestDto requestDto) {
         // 식물 조회
         Plant plant = plantRepository.findById(requestDto.getPlantId())
-                .orElseThrow(() -> new IllegalArgumentException("식물이 없습니다"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Plant not found with id: " + requestDto.getPlantId()));
 
         // wateringCycle 처리
         WateringCycle wateringCycle;
-        if(requestDto.getWateringCycle().equalsIgnoreCase("DEFAULT")) {
-            wateringCycle = plant.getWateringCycle(); // Plant의 기본값
+        String cycle = requestDto.getWateringCycle();
+        if (cycle == null || cycle.equalsIgnoreCase("DEFAULT")) {
+            wateringCycle = plant.getWateringCycle(); // Plant 기본값
         } else {
-            wateringCycle = WateringCycle.valueOf(requestDto.getWateringCycle().toUpperCase());
+            try {
+                wateringCycle = WateringCycle.valueOf(cycle.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid watering cycle: " + cycle);
+            }
         }
 
         // UserPlant 생성
         UserPlant userPlant = UserPlant.builder()
                 .user(user)
                 .plant(plant)
-                .nickname(requestDto.getPlantName())
+                .nickname(requestDto.getPlantNickName())
                 .wateringCycle(wateringCycle)
                 .status("ACTIVE")
                 .build();
