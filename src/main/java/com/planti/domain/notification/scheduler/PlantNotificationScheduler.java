@@ -1,10 +1,13 @@
 package com.planti.domain.notification.scheduler;
 
+import com.planti.domain.notification.entity.Notification;
 import com.planti.domain.notification.repository.NotificationRepository;
 import com.planti.domain.user.entity.User;
 import com.planti.domain.user.repository.UserRepository;
 import com.planti.domain.userplant.entity.UserPlant;
 import com.planti.domain.userplant.repository.UserPlantRepository;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.Message;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +24,7 @@ public class PlantNotificationScheduler {
     private final UserRepository userRepository;
 
     public PlantNotificationScheduler(
-            NotificationRepository userPlantRepository,
+            UserPlantRepository userPlantRepository,
             NotificationRepository notificationRepository,
             UserRepository userRepository) {
         this.userPlantRepository = userPlantRepository;
@@ -29,21 +32,20 @@ public class PlantNotificationScheduler {
         this.userRepository = userRepository;
     }
 
-    // 매일 9시마다 스케줄링 (cron 예시)
+    // 매일 9시마다 스케줄링
     @Scheduled(cron = "0 0 9 * * ?")
     @Transactional
     public void sendWaterNotifications() {
-        List<UserPlant> plants = userPlantRepository.findAllActivePlants();
-
+        List<UserPlant> plants = userPlantRepository.findAll(); // 활성 식물만 가져오는 쿼리로 바꾸면 좋음
         LocalDateTime now = LocalDateTime.now();
         Random random = new Random();
 
-        for (CompanionPlant plant : plants) {
+        for (UserPlant plant : plants) {
             LocalDateTime nextNotify = calculateNextWaterDate(plant, random);
 
             // 마지막 알림 이후면 발송
             Notification lastNotification = notificationRepository
-                    .findLastByPlantId(plant.getCompanionPlantId(), "WATER");
+                    .findTopByUserPlantAndTypeOrderByLastSentDesc(plant, "WATER");
 
             if (lastNotification == null || lastNotification.getLastSent().isBefore(now)) {
                 User user = plant.getUser();
@@ -54,18 +56,19 @@ public class PlantNotificationScheduler {
                             plant.getNickname() + "에게 물을 주세요!");
 
                     // Notification 테이블 업데이트
-                    Notification notification = new Notification();
-                    notification.setUser(user);
-                    notification.setCompanionPlant(plant);
-                    notification.setType("WATER");
-                    notification.setLastSent(now);
+                    Notification notification = Notification.builder()
+                            .user(user)
+                            .userPlant(plant)
+                            .type("WATER")
+                            .lastSent(now)
+                            .build();
                     notificationRepository.save(notification);
                 }
             }
         }
     }
 
-    private LocalDateTime calculateNextWaterDate(CompanionPlant plant, Random random) {
+    private LocalDateTime calculateNextWaterDate(UserPlant plant, Random random) {
         LocalDateTime now = LocalDateTime.now();
         switch (plant.getWaterCycle()) {
             case "day":
@@ -80,7 +83,7 @@ public class PlantNotificationScheduler {
             case "sometimes":
                 return now.plusWeeks(2);
             default:
-                return now.plusDays(7); // 기본값
+                return now.plusDays(7);
         }
     }
 
@@ -98,4 +101,3 @@ public class PlantNotificationScheduler {
         }
     }
 }
-
