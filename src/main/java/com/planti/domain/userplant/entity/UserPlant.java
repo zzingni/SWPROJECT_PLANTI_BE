@@ -42,6 +42,7 @@
         @Column(name = "status", length = 50)
         private String status;
 
+        @Builder.Default
         @Column(name = "created_at", updatable = false)
         private LocalDateTime createdAt = LocalDateTime.now();
     }
