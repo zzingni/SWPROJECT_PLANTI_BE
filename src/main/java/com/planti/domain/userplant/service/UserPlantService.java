@@ -9,8 +9,10 @@ import com.planti.domain.userplant.dto.request.UserPlantRequestDto;
 import com.planti.domain.userplant.entity.UserPlant;
 import com.planti.domain.userplant.repository.UserPlantRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Service
 @RequiredArgsConstructor
 public class UserPlantService {
 
@@ -19,17 +21,12 @@ public class UserPlantService {
     private final UserRepository userRepository;
 
     @Transactional
-    public UserPlant saveUserPlant(Long userId, UserPlantRequestDto requestDto) {
-
-        // 1. 사용자 조회
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저가 없습니다"));
-
-        // 2. 식물 조회
+    public UserPlant saveUserPlant(User user, UserPlantRequestDto requestDto) {
+        // 식물 조회
         Plant plant = plantRepository.findById(requestDto.getPlantId())
                 .orElseThrow(() -> new IllegalArgumentException("식물이 없습니다"));
 
-        // 3. wateringCycle 처리
+        // wateringCycle 처리
         WateringCycle wateringCycle;
         if(requestDto.getWateringCycle().equalsIgnoreCase("DEFAULT")) {
             wateringCycle = plant.getWateringCycle(); // Plant의 기본값
@@ -37,7 +34,7 @@ public class UserPlantService {
             wateringCycle = WateringCycle.valueOf(requestDto.getWateringCycle().toUpperCase());
         }
 
-        // 4. UserPlant 생성
+        // UserPlant 생성
         UserPlant userPlant = UserPlant.builder()
                 .user(user)
                 .plant(plant)
