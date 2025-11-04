@@ -29,7 +29,7 @@ public class UserPlant {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "plant_id", nullable = false)
+    @JoinColumn(name = "plant_id", referencedColumnName = "plant_id")
     private Plant plant;
 
     @Column(name = "nickname", nullable = false, length = 100)

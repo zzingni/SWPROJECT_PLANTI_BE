@@ -16,7 +16,7 @@ public class UserPlantRequestDto {
     private long plantId;       // plant_id
 
     @NotNull
-    private String plantName;      // 사용자 입력 이름
+    private String plantNickName;      // 반려식물 닉네임
 
     @NotNull
     private String wateringCycle; // 물 주기 주기

@@ -27,7 +27,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String u = request.getRequestURI();
-        return
+        /*return
                 // Swagger & infra
                 !(u.startsWith("/v3/api-docs") ||
                         u.startsWith("/swagger-ui") ||
@@ -45,7 +45,9 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                         u.startsWith("/api/scraps") ||
                         u.startsWith("/api/feedback") ||
                         u.startsWith("/api/wordbook") ||
-                        u.equals("/test"));
+                        u.equals("/test"));*/
+
+        return false;
     }
 
     @Override
@@ -55,7 +57,10 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
+        log.info("AuthenticationFilter 호출됨: {}", request.getRequestURI());
+
         String accessToken = HeaderUtil.getAccessTokenFromHeader(request);
+        log.info("Access Token: {}", accessToken);
 
         if (accessToken == null || accessToken.isBlank()) {
             filterChain.doFilter(request, response);
@@ -63,6 +68,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         }
 
         Claims claims = tokenProvider.getClaims(accessToken);
+        log.info("Claims: {}", claims);
 
         if (claims != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             Authentication auth = tokenProvider.getAuthentication(claims, accessToken);

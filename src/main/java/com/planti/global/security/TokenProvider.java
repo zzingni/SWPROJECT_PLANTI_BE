@@ -115,10 +115,13 @@ public class TokenProvider {
     public Authentication getAuthentication(Claims claims, String accessToken) {
         if (claims == null) return null;
 
-        String loginId = claims.getSubject();
+        Number userIdNumber = claims.get("user_id", Number.class);
+        Long userId = userIdNumber.longValue();
 
-        // 권한은 여기선 비워둠 (필요하면 DB 조회해서 넣을 수 있음)
-        return new UsernamePasswordAuthenticationToken(loginId, accessToken, Collections.emptyList());
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+
+        return new UsernamePasswordAuthenticationToken(user, accessToken, Collections.emptyList());
     }
 
     // Authorization: Bearer xxx 또는 쿠키(refreshToken)에서 토큰 추출
@@ -139,4 +142,6 @@ public class TokenProvider {
         }
         return null;
     }
+
+
 }

@@ -8,7 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "character")
+@Table(name = "plants")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,8 +21,11 @@ public class Plant {
     @Column(name = "plant_id")
     private Long plantId;
 
-    @Column(name = "plant_name", nullable = false, length = 50)
-    private String plantName;
+    @Column(name = "plant_name", nullable = false, length = 100)
+    private String plantNickName;
+
+    @Column(name = "species", length = 100)
+    private String species;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
@@ -41,7 +44,6 @@ public class Plant {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 }

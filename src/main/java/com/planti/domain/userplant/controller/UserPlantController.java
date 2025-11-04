@@ -10,22 +10,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/user-plants")
 @RequiredArgsConstructor
 public class UserPlantController {
     private final UserPlantService userPlantService;
-    private final UserRepository userRepository;
 
     @PostMapping
-    public ResponseEntity<String> addUserPlant(@RequestBody UserPlantRequestDto requestDto,
-                                               @AuthenticationPrincipal String loginId) {
-        // loginId: JWT에서 추출된 로그인 ID
-        User user = userRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new IllegalArgumentException("유저가 없습니다"));
+    public ResponseEntity<Map<String, String>> addUserPlant(@RequestBody UserPlantRequestDto requestDto,
+                                                            @AuthenticationPrincipal User user) {
 
         userPlantService.saveUserPlant(user, requestDto);
 
-        return ResponseEntity.ok("반려식물 저장 완료");
+        Map<String, String> response = new HashMap<>();
+        response.put("plantNickName", requestDto.getPlantNickName());
+
+        return ResponseEntity.ok(response);
     }
 }

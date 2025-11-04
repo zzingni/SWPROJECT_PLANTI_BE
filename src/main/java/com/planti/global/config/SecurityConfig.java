@@ -2,7 +2,9 @@ package com.planti.global.config;
 
 import com.planti.global.oauth2.OAuth2LoginSuccessHandler;
 import com.planti.global.oauth2.OAuth2UserService;
+import com.planti.global.security.AuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -27,13 +29,15 @@ public class SecurityConfig {
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final OAuth2UserService oAuth2UserService;
 
+    @Autowired
+    private AuthenticationFilter authenticationFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 // 세션 쓸 거면 ignore로 예외만
                 // .csrf(csrf -> csrf.ignoringRequestMatchers("/api/auth/**"))
-
                 .authorizeHttpRequests(auth -> auth
                         // Swagger & OpenAPI는 공개
                         .requestMatchers(
@@ -86,7 +90,7 @@ public class SecurityConfig {
 
                 // 프론트 분리 시 CORS 허용
                 .cors(Customizer.withDefaults());
-
+        http.addFilterBefore(authenticationFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
