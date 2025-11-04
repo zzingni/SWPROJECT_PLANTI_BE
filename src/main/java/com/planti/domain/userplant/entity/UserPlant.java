@@ -1,5 +1,7 @@
 package com.planti.domain.userplant.entity;
 
+import com.planti.domain.plant.entity.Plant;
+import com.planti.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,11 +23,13 @@ public class UserPlant {
     @Column(name = "companion_plant_id")
     private Integer companionPlantId;
 
-    @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
+    private User user;
 
-    @Column(name = "plant_id", nullable = false)
-    private Integer plantId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "plant_id", nullable = false, insertable = false, updatable = false)
+    private Plant plant;
 
     @Column(name = "nickname", nullable = false, length = 100)
     private String nickname;
