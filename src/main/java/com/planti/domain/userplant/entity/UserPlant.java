@@ -1,6 +1,7 @@
 package com.planti.domain.userplant.entity;
 
 import com.planti.domain.plant.entity.Plant;
+import com.planti.domain.plant.entity.WateringCycle;
 import com.planti.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -34,8 +35,9 @@ public class UserPlant {
     @Column(name = "nickname", nullable = false, length = 100)
     private String nickname;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "watering_cycle")
-    private Integer wateringCycle;
+    private WateringCycle wateringCycle;
 
     @Column(name = "status", length = 50)
     private String status;
