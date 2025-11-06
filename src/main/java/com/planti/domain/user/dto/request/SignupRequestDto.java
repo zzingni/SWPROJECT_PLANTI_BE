@@ -15,8 +15,7 @@ public record SignupRequestDto(
     public User toEntity(String encodedPassword) {
         return User.builder()
                 .loginId(loginId)
-                .password(encodedPassword)
-                .nickname(nickname)
+                .password(encodedPassword)                .nickname(nickname)
                 .gender(gender)
                 .age(age)
                 .status("ACTIVE")
@@ -24,4 +23,5 @@ public record SignupRequestDto(
                 .fcmToken(fcmToken)
                 .build();
     }
+
 }
