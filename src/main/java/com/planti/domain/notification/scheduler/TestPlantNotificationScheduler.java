@@ -3,6 +3,7 @@ package com.planti.domain.notification.scheduler;
 import com.planti.domain.notification.entity.Notification;
 import com.planti.domain.notification.repository.NotificationRepository;
 import com.planti.domain.user.entity.User;
+import com.planti.domain.user.repository.UserRepository;
 import com.planti.domain.userplant.entity.UserPlant;
 import com.planti.domain.userplant.repository.UserPlantRepository;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -20,34 +21,44 @@ public class TestPlantNotificationScheduler {
 
     private final UserPlantRepository userPlantRepository;
     private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
 
     public TestPlantNotificationScheduler(
             UserPlantRepository userPlantRepository,
-            NotificationRepository notificationRepository) {
+            NotificationRepository notificationRepository, UserRepository userRepository) {
         this.userPlantRepository = userPlantRepository;
         this.notificationRepository = notificationRepository;
+        this.userRepository = userRepository;
     }
 
     // 테스트용: 매 분마다 알림 발송
     @Scheduled(cron = "0 * * * * ?")
     @Transactional
     public void sendWaterNotifications() {
-        List<UserPlant> plants = userPlantRepository.findAll();
+        Long userId = 14L; // 알림 테스트할 유저 ID
+        List<UserPlant> plants = userPlantRepository.findAllWithUser(userId);
+        if (plants.isEmpty()) {
+            System.out.println("UserId " + userId + " has no plants. Skipping notification.");
+            return; // 혹은 continue if 여러 유저 반복문일 경우
+        }
         LocalDateTime now = LocalDateTime.now();
         Random random = new Random();
+        System.out.println("Scheduler 시작: " + LocalDateTime.now() + ", plants count: " + plants.size());
 
         for (UserPlant plant : plants) {
+            User user = plant.getUser();
+
+            System.out.println("UserPlant: " + plant.getNickname() + ", UserId: " + user.getUserId() + ", FCM: " + user.getFcmToken());
+
             Notification lastNotification = notificationRepository
                     .findTopByUserPlantAndTypeOrderByLastSentDesc(plant, "WATER");
 
             if (lastNotification == null || lastNotification.getLastSent().isBefore(now.minusMinutes(1))) {
-                User user = plant.getUser();
-
                 if (user.getFcmToken() != null) {
+                    System.out.println("Sending FCM to token: " + user.getFcmToken());
                     sendFcm(user.getFcmToken(),
                             "테스트 물 주기 알림",
                             plant.getNickname() + "에게 물을 주세요! (테스트)");
-
                     Notification notification = Notification.builder()
                             .user(user)
                             .userPlant(plant)
@@ -62,6 +73,7 @@ public class TestPlantNotificationScheduler {
 
     private void sendFcm(String fcmToken, String title, String body) {
         try {
+            System.out.println("FCM 발송 시도: " + title);
             Message message = Message.builder()
                     .setToken(fcmToken)
                     .putData("title", title)

@@ -24,8 +24,8 @@
         @Column(name = "companion_plant_id")
         private Long companionPlantId;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "user_id", nullable = false)
+        @ManyToOne(fetch = FetchType.EAGER)
+        @JoinColumn(name = "user_id")
         private User user;
 
         @ManyToOne(fetch = FetchType.LAZY)
