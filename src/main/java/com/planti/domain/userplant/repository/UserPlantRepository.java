@@ -15,4 +15,7 @@ public interface UserPlantRepository extends JpaRepository<UserPlant, Integer> {
 
     @Query("SELECT up FROM UserPlant up JOIN FETCH up.user u WHERE u.userId = :userId")
     List<UserPlant> findAllWithUser(@Param("userId") Long userId);
+
+    @Query("SELECT up FROM UserPlant up JOIN FETCH up.user u WHERE up.status = 'ACTIVE'")
+    List<UserPlant> findAllActiveWithUser();
 }
