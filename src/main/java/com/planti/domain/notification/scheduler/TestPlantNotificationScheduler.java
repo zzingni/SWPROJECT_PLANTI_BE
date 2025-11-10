@@ -16,42 +16,38 @@ import java.util.List;
 import java.util.Random;
 
 @Component
-public class PlantNotificationScheduler {
+public class TestPlantNotificationScheduler {
 
     private final UserPlantRepository userPlantRepository;
     private final NotificationRepository notificationRepository;
 
-    public PlantNotificationScheduler(
+    public TestPlantNotificationScheduler(
             UserPlantRepository userPlantRepository,
             NotificationRepository notificationRepository) {
         this.userPlantRepository = userPlantRepository;
         this.notificationRepository = notificationRepository;
     }
 
-    // 매일 9시마다 스케줄링
-    @Scheduled(cron = "0 0 9 * * ?")
+    // 테스트용: 매 분마다 알림 발송
+    @Scheduled(cron = "0 * * * * ?")
     @Transactional
     public void sendWaterNotifications() {
-        List<UserPlant> plants = userPlantRepository.findAll(); // 활성 식물만 가져오도록 수정 가능
+        List<UserPlant> plants = userPlantRepository.findAll();
         LocalDateTime now = LocalDateTime.now();
         Random random = new Random();
 
         for (UserPlant plant : plants) {
-            LocalDateTime nextNotify = calculateNextWaterDate(plant, random);
-
-            // 마지막 알림 이후면 발송
             Notification lastNotification = notificationRepository
                     .findTopByUserPlantAndTypeOrderByLastSentDesc(plant, "WATER");
 
-            if (lastNotification == null || lastNotification.getLastSent().isBefore(now)) {
+            if (lastNotification == null || lastNotification.getLastSent().isBefore(now.minusMinutes(1))) {
                 User user = plant.getUser();
 
                 if (user.getFcmToken() != null) {
                     sendFcm(user.getFcmToken(),
-                            "물 주기 알림",
-                            plant.getNickname() + "에게 물을 주세요!");
+                            "테스트 물 주기 알림",
+                            plant.getNickname() + "에게 물을 주세요! (테스트)");
 
-                    // Notification 테이블 업데이트 (messageId 없이)
                     Notification notification = Notification.builder()
                             .user(user)
                             .userPlant(plant)
@@ -61,25 +57,6 @@ public class PlantNotificationScheduler {
                     notificationRepository.save(notification);
                 }
             }
-        }
-    }
-
-    private LocalDateTime calculateNextWaterDate(UserPlant plant, Random random) {
-        LocalDateTime now = LocalDateTime.now();
-        switch (plant.getWateringCycle().toString()) {
-            case "day":
-                return now.plusDays(1);
-            case "week":
-                return now.plusWeeks(1);
-            case "month":
-                return now.plusMonths(1);
-            case "often":
-                int days = random.nextInt(5) + 3; // 3~7일 랜덤
-                return now.plusDays(days);
-            case "sometimes":
-                return now.plusWeeks(2);
-            default:
-                return now.plusDays(7);
         }
     }
 
