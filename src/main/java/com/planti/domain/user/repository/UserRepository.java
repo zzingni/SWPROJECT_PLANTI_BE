@@ -1,10 +1,12 @@
 package com.planti.domain.user.repository;
 
 import com.planti.domain.user.entity.User;
+import com.planti.domain.userplant.entity.UserPlant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
