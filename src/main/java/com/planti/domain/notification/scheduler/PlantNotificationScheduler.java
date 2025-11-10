@@ -2,7 +2,6 @@ package com.planti.domain.notification.scheduler;
 
 import com.planti.domain.notification.entity.Notification;
 import com.planti.domain.notification.repository.NotificationRepository;
-import com.planti.domain.user.entity.User;
 import com.planti.domain.userplant.entity.UserPlant;
 import com.planti.domain.userplant.repository.UserPlantRepository;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -15,46 +14,45 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 
-
 @Component
 public class PlantNotificationScheduler {
 
     private final UserPlantRepository userPlantRepository;
     private final NotificationRepository notificationRepository;
 
-    public PlantNotificationScheduler(
-            UserPlantRepository userPlantRepository,
-            NotificationRepository notificationRepository) {
+    public PlantNotificationScheduler(UserPlantRepository userPlantRepository,
+                                      NotificationRepository notificationRepository) {
         this.userPlantRepository = userPlantRepository;
         this.notificationRepository = notificationRepository;
     }
 
-    // 매일 9시마다 스케줄링
+    // 매일 9시에 스케줄링
     @Scheduled(cron = "0 0 9 * * ?")
     @Transactional
     public void sendWaterNotifications() {
-        List<UserPlant> plants = userPlantRepository.findAll(); // 활성 식물만 가져오도록 수정 가능
+        List<UserPlant> plants = userPlantRepository.findAllActiveWithUser();
         LocalDateTime now = LocalDateTime.now();
         Random random = new Random();
 
-        for (UserPlant plant : plants) {
-            LocalDateTime nextNotify = calculateNextWaterDate(plant, random);
+        if (plants.isEmpty()) {
+            System.out.println("활성 반려식물이 없습니다. 스킵합니다.");
+            return;
+        }
 
-            // 마지막 알림 이후면 발송
+        System.out.println("Scheduler 시작: " + now + ", plants count: " + plants.size());
+
+        for (UserPlant plant : plants) {
             Notification lastNotification = notificationRepository
                     .findTopByUserPlantAndTypeOrderByLastSentDesc(plant, "WATER");
 
             if (lastNotification == null || lastNotification.getLastSent().isBefore(now)) {
-                User user = plant.getUser();
-
-                if (user.getFcmToken() != null) {
-                    sendFcm(user.getFcmToken(),
+                if (plant.getUser().getFcmToken() != null) {
+                    sendFcm(plant.getUser().getFcmToken(),
                             "물 주기 알림",
                             plant.getNickname() + "에게 물을 주세요!");
 
-                    // Notification 테이블 업데이트 (messageId 없이)
                     Notification notification = Notification.builder()
-                            .user(user)
+                            .user(plant.getUser())
                             .userPlant(plant)
                             .type("WATER")
                             .lastSent(now)
