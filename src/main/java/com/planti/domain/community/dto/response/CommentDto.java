@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class CommentDto {
-    private Integer commentId;
+    private long commentId;
     private Long userId;
     private String nickname;
     private String content;
