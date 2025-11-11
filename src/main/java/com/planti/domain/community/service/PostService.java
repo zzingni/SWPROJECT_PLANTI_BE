@@ -40,7 +40,7 @@ public class PostService {
                 request.getSortBy()
         );
 
-        Page<Post> posts = postRepository.findByBoardId(request.getBoardId(), pageRequest);
+        Page<Post> posts = postRepository.findByBoard_BoardId(request.getBoardId(), pageRequest);
 
         List<PostSummaryDto> content = posts.getContent().stream().map(post -> PostSummaryDto.builder()
                 .postId(post.getPostId())
@@ -67,7 +67,7 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        List<CommentDto> comments = commentRepository.findByPostId(postId)
+        List<CommentDto> comments = commentRepository.findByPost_PostId(postId)
                 .stream().map(c -> CommentDto.builder()
                         .commentId(c.getCommentId())
                         .userId(c.getUser().getUserId())

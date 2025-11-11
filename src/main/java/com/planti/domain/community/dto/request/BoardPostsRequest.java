@@ -1,5 +1,6 @@
 package com.planti.domain.community.dto.request;
 
+import io.grpc.InternalWithLogId;
 import lombok.*;
 
 @Getter
