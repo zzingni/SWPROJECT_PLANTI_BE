@@ -63,7 +63,7 @@ public class PlantNotificationScheduler {
         }
     }
 
-    private LocalDateTime calculateNextWaterDate(UserPlant plant, Random random) {
+    private LocalDateTime calculateNextWatereDate(UserPlant plant, Random random) {
         LocalDateTime now = LocalDateTime.now();
         switch (plant.getWateringCycle().toString()) {
             case "day":
