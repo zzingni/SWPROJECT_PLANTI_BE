@@ -16,4 +16,5 @@ public class CommentDto {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private boolean isOwner; // 본인 작성 여부
 }

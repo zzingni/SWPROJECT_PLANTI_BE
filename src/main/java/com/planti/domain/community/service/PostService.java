@@ -63,11 +63,11 @@ public class PostService {
     }
 
     // 게시글 상세 조회
-    public PostDetailDto getPostDetail(Integer postId) {
+    public PostDetailDto getPostDetail(long postId, Long currentUserId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        List<CommentDto> comments = commentRepository.findByPostPostId(postId)
+        List<CommentDto> comments = commentRepository.findByPostId(postId)
                 .stream().map(c -> CommentDto.builder()
                         .commentId(c.getCommentId())
                         .userId(c.getUser().getUserId())
@@ -75,6 +75,7 @@ public class PostService {
                         .content(c.getContent())
                         .createdAt(c.getCreatedAt())
                         .updatedAt(c.getUpdatedAt())
+                        .isOwner(c.getUser().getUserId().equals(currentUserId))
                         .build())
                 .collect(Collectors.toList());
 
@@ -87,6 +88,7 @@ public class PostService {
                 .imageUrl(post.getImageUrl())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
+                .isOwner(post.getUser().getUserId().equals(currentUserId))
                 .status(post.getStatus())
                 .likeCount(post.getLikeCount())
                 .comments(comments)
