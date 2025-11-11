@@ -22,12 +22,11 @@ public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id")
-    private Integer postId;
+    private long postId;
 
-    // 회원은 별도의 User 엔티티가 있다고 가정
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", referencedColumnName = "user_id", nullable = false)
-    private User member;
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", referencedColumnName = "board_id", nullable = false)
@@ -39,8 +38,11 @@ public class Post {
     @Column(name = "content", columnDefinition = "text", nullable = false)
     private String content;
 
-    @Column(name = "image_url", length = 300)
+    @Column(name = "image_url", nullable = false)
     private String imageUrl;
+
+    @Column(name = "like_count", length = 300)
+    private int likeCount;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

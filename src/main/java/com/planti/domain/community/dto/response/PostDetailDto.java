@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class PostDetailDto { // 게시글 dto
-    private Integer postId;
+    private long postId;
     private String title;
     private String content;
     private Long userId;

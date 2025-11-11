@@ -20,12 +20,12 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id")
-    private Integer commentId;
+    private long commentId;
 
     // 회원 엔티티 참조
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", referencedColumnName = "user_id", nullable = false)
-    private User member;
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", referencedColumnName = "post_id", nullable = false)
