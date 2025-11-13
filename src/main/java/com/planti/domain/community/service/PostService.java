@@ -18,7 +18,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,8 +30,16 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
     private final BoardRepository boardRepository;
+    private final UserRepository userRepository;
+
+    @Transactional
+    public Post savePost(Post post) {
+        Post saved = postRepository.save(post); // 기본 save 사용
+        saved.getUser().getNickname(); // 연관 엔티티 강제 초기화
+        saved.getBoard().getBoardId();
+        return saved;
+    }
 
     // 게시글 목록 조회
     public PagedResponse<PostSummaryDto> getBoardPosts(BoardPostsRequest request) {
@@ -96,25 +106,22 @@ public class PostService {
     }
 
     // 게시글 생성
+    @Transactional
     public Post createPost(CreatePostRequest request) {
-        // 1. User 조회
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // 2. Board 조회
-        Board board = boardRepository.findById(request.getBoardId())
-                .orElseThrow(() -> new RuntimeException("Board not found"));
-
-        // 3. Post 생성
         Post post = Post.builder()
-                .user(user)        // User 객체 할당
-                .board(board)      // Board 객체 할당
+                .board(boardRepository.findById(request.getBoardId())
+                        .orElseThrow(() -> new RuntimeException("Board not found")))
+                .user(userRepository.findById(request.getUserId())
+                        .orElseThrow(() -> new RuntimeException("User not found")))
                 .title(request.getTitle())
                 .content(request.getContent())
                 .imageUrl(request.getImageUrl())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .status("ACTIVE")
+                .likeCount(0)
                 .build();
 
-        // 4. 저장 후 반환
-        return postRepository.save(post);
+        return savePost(post); // 여기서 save + fetch 처리
     }
 }
