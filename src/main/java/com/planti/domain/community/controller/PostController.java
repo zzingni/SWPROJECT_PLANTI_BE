@@ -2,6 +2,7 @@ package com.planti.domain.community.controller;
 
 import com.planti.domain.community.dto.request.BoardPostsRequest;
 import com.planti.domain.community.dto.request.CreatePostRequest;
+import com.planti.domain.community.dto.request.PostLikeRequest;
 import com.planti.domain.community.dto.response.PagedResponse;
 import com.planti.domain.community.dto.response.PostDetailDto;
 import com.planti.domain.community.dto.response.PostSummaryDto;
@@ -74,6 +75,11 @@ public class PostController {
                 .comments(null) // 등록 시점엔 댓글 없음
                 .isOwner(true)  // 작성자 본인이므로 true
                 .build();
+    }
+
+    @PostMapping("/like")
+    public void likePost(@RequestBody PostLikeRequest request) {
+        postService.likePost(request.getPostId(), request.getUserId());
     }
 
     // 테스트용: 게시판별 게시글 목록 조회

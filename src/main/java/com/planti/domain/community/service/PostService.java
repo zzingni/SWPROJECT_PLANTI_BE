@@ -7,6 +7,7 @@ import com.planti.domain.community.dto.response.PagedResponse;
 import com.planti.domain.community.dto.response.PostDetailDto;
 import com.planti.domain.community.dto.response.PostSummaryDto;
 import com.planti.domain.community.entity.Post;
+import com.planti.domain.community.entity.PostLike;
 import com.planti.domain.community.repository.BoardRepository;
 import com.planti.domain.community.repository.CommentRepository;
 import com.planti.domain.community.repository.PostLikeRepository;
@@ -130,5 +131,21 @@ public class PostService {
                 .build();
 
         return savePost(post); // 여기서 save + fetch 처리
+    }
+
+    // 좋아요 처리
+    @Transactional
+    public void likePost(Long postId, Long userId) {
+        if (postLikeRepository.existsByUserIdAndPostId(userId, postId)) {
+            postLikeRepository.deleteByUserIdAndPostId(userId, postId);
+        } else {
+            Post post = postRepository.findById(postId)
+                    .orElseThrow(() -> new RuntimeException("Post not found"));
+
+            postLikeRepository.save(PostLike.builder()
+                    .post(post)
+                    .user(userRepository.findById(userId).orElseThrow())
+                    .build());
+        }
     }
 }
