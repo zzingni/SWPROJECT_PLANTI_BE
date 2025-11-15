@@ -79,7 +79,7 @@ public class PostController {
 
     @PostMapping("/like")
     public void likePost(@RequestBody PostLikeRequest request) {
-        postService.likePost(request.getPostId(), request.getUserId());
+        postService.toggleLike(request.getPostId(), request.getUserId());
     }
 
     // 테스트용: 게시판별 게시글 목록 조회

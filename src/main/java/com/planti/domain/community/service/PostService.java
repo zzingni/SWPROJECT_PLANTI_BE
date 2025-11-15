@@ -12,6 +12,7 @@ import com.planti.domain.community.repository.BoardRepository;
 import com.planti.domain.community.repository.CommentRepository;
 import com.planti.domain.community.repository.PostLikeRepository;
 import com.planti.domain.community.repository.PostRepository;
+import com.planti.domain.user.entity.User;
 import com.planti.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -135,17 +136,23 @@ public class PostService {
 
     // 좋아요 처리
     @Transactional
-    public void likePost(Long postId, Long userId) {
-        if (postLikeRepository.existsByUserIdAndPostId(userId, postId)) {
-            postLikeRepository.deleteByUserIdAndPostId(userId, postId);
-        } else {
-            Post post = postRepository.findById(postId)
-                    .orElseThrow(() -> new RuntimeException("Post not found"));
+    public void toggleLike(Long postId, Long userId) {
+        Post post = postRepository.findById(postId).orElseThrow();
+        User user = userRepository.findById(userId).orElseThrow();
 
-            postLikeRepository.save(PostLike.builder()
+        // 이미 좋아요가 있는지 확인
+        Optional<PostLike> existing = postLikeRepository.findByUserAndPost(user, post);
+
+        if (existing.isPresent()) {
+            // 이미 좋아요 있음 → 취소
+            postLikeRepository.delete(existing.get());
+        } else {
+            // 좋아요 없음 → 새로 추가
+            PostLike newLike = PostLike.builder()
                     .post(post)
-                    .user(userRepository.findById(userId).orElseThrow())
-                    .build());
+                    .user(user)
+                    .build();
+            postLikeRepository.save(newLike);
         }
     }
 }
