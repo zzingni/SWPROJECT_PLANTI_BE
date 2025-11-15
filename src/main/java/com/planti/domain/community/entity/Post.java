@@ -41,9 +41,6 @@ public class Post {
     @Column(name = "image_url", nullable = false)
     private String imageUrl;
 
-    @Column(name = "like_count", length = 300)
-    private int likeCount;
-
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

@@ -21,6 +21,7 @@ public class PostDetailDto { // 게시글 dto
     private LocalDateTime updatedAt;
     private String status;
     private int likeCount; // 좋아요 수
+    private boolean likedByUser;
     private List<CommentDto> comments;
     private boolean isOwner; // 본인 작성 여부
 }
