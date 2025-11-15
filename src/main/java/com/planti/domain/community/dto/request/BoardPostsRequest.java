@@ -14,4 +14,5 @@ public class BoardPostsRequest {
     private Integer size = 20;   // 기본 20
     private String sortBy = "createdAt"; // 정렬 필드
     private String direction = "DESC";   // ASC / DESC
+    private Long currentUserId;
 }

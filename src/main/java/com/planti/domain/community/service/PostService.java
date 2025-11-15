@@ -6,12 +6,11 @@ import com.planti.domain.community.dto.response.CommentDto;
 import com.planti.domain.community.dto.response.PagedResponse;
 import com.planti.domain.community.dto.response.PostDetailDto;
 import com.planti.domain.community.dto.response.PostSummaryDto;
-import com.planti.domain.community.entity.Board;
 import com.planti.domain.community.entity.Post;
 import com.planti.domain.community.repository.BoardRepository;
 import com.planti.domain.community.repository.CommentRepository;
+import com.planti.domain.community.repository.PostLikeRepository;
 import com.planti.domain.community.repository.PostRepository;
-import com.planti.domain.user.entity.User;
 import com.planti.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,7 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +31,8 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
+    private final PostLikeRepository postLikeRepository;
+
 
     @Transactional
     public Post savePost(Post post) {
@@ -43,6 +44,7 @@ public class PostService {
 
     // 게시글 목록 조회
     public PagedResponse<PostSummaryDto> getBoardPosts(BoardPostsRequest request) {
+
         PageRequest pageRequest = PageRequest.of(
                 request.getPage(),
                 request.getSize(),
@@ -52,15 +54,17 @@ public class PostService {
 
         Page<Post> posts = postRepository.findByBoard_BoardId(request.getBoardId(), pageRequest);
 
-        List<PostSummaryDto> content = posts.getContent().stream().map(post -> PostSummaryDto.builder()
-                .postId(post.getPostId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .userId(post.getUser().getUserId())
-                .nickname(post.getUser().getNickname())
-                .imageUrl(post.getImageUrl())
-                .createdAt(post.getCreatedAt())
-                .build()).collect(Collectors.toList());
+        List<PostSummaryDto> content = posts.getContent().stream().map(post ->
+                PostSummaryDto.builder()
+                        .postId(post.getPostId())
+                        .title(post.getTitle())
+                        .content(post.getContent())
+                        .userId(post.getUser().getUserId())
+                        .nickname(post.getUser().getNickname())
+                        .imageUrl(post.getImageUrl())
+                        .createdAt(post.getCreatedAt())
+                        .build()
+        ).collect(Collectors.toList());
 
         return PagedResponse.<PostSummaryDto>builder()
                 .content(content)
@@ -89,6 +93,9 @@ public class PostService {
                         .build())
                 .collect(Collectors.toList());
 
+        boolean likedByUser = currentUserId != null && postLikeRepository.existsByUserIdAndPostId(currentUserId, postId);
+        long likeCount = postLikeRepository.countByPostId(postId);
+
         return PostDetailDto.builder()
                 .postId(post.getPostId())
                 .title(post.getTitle())
@@ -100,8 +107,9 @@ public class PostService {
                 .updatedAt(post.getUpdatedAt())
                 .isOwner(post.getUser().getUserId().equals(currentUserId))
                 .status(post.getStatus())
-                .likeCount(post.getLikeCount())
                 .comments(comments)
+                .likedByUser(likedByUser)
+                .likeCount((int) likeCount)
                 .build();
     }
 
@@ -119,7 +127,6 @@ public class PostService {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .status("active")
-                .likeCount(0)
                 .build();
 
         return savePost(post); // 여기서 save + fetch 처리
