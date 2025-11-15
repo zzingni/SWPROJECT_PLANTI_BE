@@ -118,7 +118,7 @@ public class PostService {
                 .imageUrl(request.getImageUrl())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
-                .status("ACTIVE")
+                .status("active")
                 .likeCount(0)
                 .build();
 
