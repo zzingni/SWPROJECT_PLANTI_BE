@@ -6,6 +6,7 @@ import com.planti.domain.community.dto.response.CommentDto;
 import com.planti.domain.community.dto.response.PagedResponse;
 import com.planti.domain.community.dto.response.PostDetailDto;
 import com.planti.domain.community.dto.response.PostSummaryDto;
+import com.planti.domain.community.entity.Comment;
 import com.planti.domain.community.entity.Post;
 import com.planti.domain.community.entity.PostLike;
 import com.planti.domain.community.repository.BoardRepository;
@@ -154,5 +155,41 @@ public class PostService {
                     .build();
             postLikeRepository.save(newLike);
         }
+    }
+
+    @Transactional
+    public CommentDto updateComment(Long commentId, Long currentUserId, String newContent) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("댓글이 존재하지 않습니다."));
+
+        if (!comment.getUser().getUserId().equals(currentUserId)) {
+            throw new RuntimeException("본인 댓글만 수정할 수 있습니다.");
+        }
+
+        comment.setContent(newContent);
+        comment.setUpdatedAt(LocalDateTime.now()); // 수정 시점 반영
+        commentRepository.save(comment);
+
+        return CommentDto.builder()
+                .commentId(comment.getCommentId())
+                .userId(comment.getUser().getUserId())
+                .nickname(comment.getUser().getNickname())
+                .content(comment.getContent())
+                .createdAt(comment.getCreatedAt())
+                .updatedAt(comment.getUpdatedAt())
+                .isOwner(true)
+                .build();
+    }
+
+    @Transactional
+    public void deleteComment(Long commentId, Long currentUserId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("댓글이 존재하지 않습니다."));
+
+        if (!comment.getUser().getUserId().equals(currentUserId)) {
+            throw new RuntimeException("본인 댓글만 삭제할 수 있습니다.");
+        }
+
+        commentRepository.delete(comment);
     }
 }
