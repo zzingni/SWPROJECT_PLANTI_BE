@@ -2,6 +2,7 @@ package com.planti.domain.community.service;
 
 import com.planti.domain.community.dto.request.BoardPostsRequest;
 import com.planti.domain.community.dto.request.CreatePostRequest;
+import com.planti.domain.community.dto.request.PostUpdateRequest;
 import com.planti.domain.community.dto.response.CommentDto;
 import com.planti.domain.community.dto.response.PagedResponse;
 import com.planti.domain.community.dto.response.PostDetailDto;
@@ -133,6 +134,41 @@ public class PostService {
                 .build();
 
         return savePost(post); // 여기서 save + fetch 처리
+    }
+
+    @Transactional
+    public PostDetailDto updatePost(Long postId, Long currentUserId, PostUpdateRequest request) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
+
+        if (!post.getUser().getUserId().equals(currentUserId)) {
+            throw new RuntimeException("본인 게시글만 수정할 수 있습니다.");
+        }
+
+        // 수정 필드 적용
+        if (request.getTitle() != null) post.setTitle(request.getTitle());
+        if (request.getContent() != null) post.setContent(request.getContent());
+        if (request.getImageUrl() != null) post.setImageUrl(request.getImageUrl());
+
+        post.setUpdatedAt(LocalDateTime.now());
+        postRepository.save(post);
+
+        // 기존 getPostDetail과 동일하게 DTO 반환
+        return getPostDetail(postId, currentUserId);
+    }
+
+    @Transactional
+    public void deletePost(Long postId, Long currentUserId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
+
+        if (!post.getUser().getUserId().equals(currentUserId)) {
+            throw new RuntimeException("본인 게시글만 삭제할 수 있습니다.");
+        }
+
+        post.setStatus("deleted"); // 논리 삭제
+        post.setDeletedAt(LocalDateTime.now());
+        postRepository.save(post);
     }
 
     // 좋아요 처리
