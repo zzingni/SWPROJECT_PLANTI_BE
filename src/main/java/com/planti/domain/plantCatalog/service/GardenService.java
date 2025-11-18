@@ -118,13 +118,19 @@ public class GardenService {
     public PlantDto getGardenDetail(String cntntsNo) {
         try {
             JsonNode root = callXmlApi("/gardenDtl", Map.of("cntntsNo", cntntsNo));
-            // 상세는 items/item 또는 body/items/item 에 하나의 item
-            JsonNode items = findItemsNode(root);
-            JsonNode item = (items != null && items.isArray() && items.size() > 0) ? items.get(0) : root;
+
+            JsonNode item = findFirstItemNode(root);
+            // fallback: 응답 구조가 item 없이 바로 필드를 내려주는 경우(rare)
+            if (item == null) {
+                // response/body 또는 response 아래에서 직접 필드 찾기 시도
+                JsonNode maybeBody = root.at("/response/body");
+                if (!maybeBody.isMissingNode()) item = maybeBody;
+                else item = root; // 최후의 수단
+            }
+
             String name = safeText(item, "cntntsSj");
             String scientificName = safeText(item, "plntbneNm");
             String family = safeText(item, "fmlNm");
-            // 물주기(사계절 코드명들 합치기)
             String watering = joinIfNotBlank(
                     safeText(item, "watercycleSprngCodeNm"),
                     safeText(item, "watercycleSummerCodeNm"),
@@ -157,27 +163,40 @@ public class GardenService {
 
     // ----------------- 유틸 -----------------
     private JsonNode findItemsNode(JsonNode root) {
-        // 다양한 응답 폴더 구조 대응: response/body/items/item 또는 response/items/item 등
         if (root == null) return null;
-        // 가장 자주 쓰이는 위치 순으로 체크
-        JsonNode node;
-        node = root.at("/response/body/items/item");
-        if (!node.isMissingNode()) return node;
+
+        // 흔한 위치 우선 체크
+        JsonNode node = root.at("/response/body/items/item");
+        if (!node.isMissingNode() && (node.isArray() || node.isObject())) {
+            // object인 경우에도 배열처럼 다루기 위해 그대로 반환 (caller가 체크)
+            return node;
+        }
+
         node = root.at("/response/items/item");
-        if (!node.isMissingNode()) return node;
+        if (!node.isMissingNode() && (node.isArray() || node.isObject())) return node;
+
         node = root.at("/items/item");
-        if (!node.isMissingNode()) return node;
-        // 혹시 items 바로 아래 배열이면
+        if (!node.isMissingNode() && (node.isArray() || node.isObject())) return node;
+
+        // 때때로 items가 배열이 아니라 바로 item 태그들이 여러개로 들어오는 경우 처리
         node = root.at("/response/body/items");
         if (!node.isMissingNode() && node.isArray()) return node;
+
         node = root.at("/response/items");
         if (!node.isMissingNode() && node.isArray()) return node;
-        // fallback: search for any "item" array in tree
-        Iterator<JsonNode> iter = root.findValues("item").iterator();
-        while (iter.hasNext()) {
-            JsonNode cand = iter.next();
-            if (cand.isArray()) return cand;
+
+        // fallback: findAny 'item' occurrences (list of nodes)
+        List<JsonNode> found = root.findValues("item");
+        if (!found.isEmpty()) {
+            // 만약 복수개의 item 객체가 있으면 배열로 합쳐서 반환
+            // 만약 단일 item이면 그 node를 그대로 반환
+            if (found.size() == 1) return found.get(0);
+            ArrayList<JsonNode> arr = new ArrayList<>(found);
+            // convert to ArrayNode could be done but simple approach: return first for list-processing callers
+            // 여기서는 호출부에서 isArray/isObject 체크하도록 설계
+            return xmlMapper.valueToTree(arr); // JsonNode 배열로 반환
         }
+
         return null;
     }
 
@@ -197,5 +216,14 @@ public class GardenService {
             }
         }
         return sb.toString();
+    }
+
+    private JsonNode findFirstItemNode(JsonNode root) {
+        JsonNode items = findItemsNode(root);
+        if (items == null) return null;
+        if (items.isArray() && items.size() > 0) return items.get(0);
+        // items가 object(단일 item)인 경우
+        if (items.isObject()) return items;
+        return null;
     }
 }
