@@ -3,6 +3,7 @@ package com.planti.domain.community.controller;
 import com.planti.domain.community.dto.request.BoardPostsRequest;
 import com.planti.domain.community.dto.request.CreatePostRequest;
 import com.planti.domain.community.dto.request.PostLikeRequest;
+import com.planti.domain.community.dto.request.PostUpdateRequest;
 import com.planti.domain.community.dto.response.PagedResponse;
 import com.planti.domain.community.dto.response.PostDetailDto;
 import com.planti.domain.community.dto.response.PostSummaryDto;
@@ -49,6 +50,7 @@ public class PostController {
         return postService.getBoardPosts(request);
     }
 
+    // 게시글 조회
     @GetMapping("/{postId}")
     public PostDetailDto getPostDetail(
             @PathVariable Long postId,
@@ -58,6 +60,7 @@ public class PostController {
         return postService.getPostDetail(postId, currentUserId);
     }
 
+    // 게시글 생성
     @PostMapping
     public PostDetailDto createPost(@RequestBody CreatePostRequest request) {
         Post savedPost = postService.createPost(request);
@@ -75,6 +78,25 @@ public class PostController {
                 .comments(null) // 등록 시점엔 댓글 없음
                 .isOwner(true)  // 작성자 본인이므로 true
                 .build();
+    }
+
+    // 게시글 수정
+    @PutMapping("/{postId}")
+    public PostDetailDto updatePost(
+            @PathVariable Long postId,
+            @RequestBody PostUpdateRequest request,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        return postService.updatePost(postId, currentUser.getUserId(), request);
+    }
+
+    // 게시글 삭제
+    @DeleteMapping("/{postId}")
+    public void deletePost(
+            @PathVariable Long postId,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        postService.deletePost(postId, currentUser.getUserId());
     }
 
     @PostMapping("/like")
