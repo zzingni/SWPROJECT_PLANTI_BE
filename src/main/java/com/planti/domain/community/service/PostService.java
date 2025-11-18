@@ -158,6 +158,34 @@ public class PostService {
     }
 
     @Transactional
+    public CommentDto createComment(Long postId, Long userId, String content) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자가 존재하지 않습니다."));
+
+        Comment comment = Comment.builder()
+                .post(post)
+                .user(user)
+                .content(content)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        commentRepository.save(comment);
+
+        return CommentDto.builder()
+                .commentId(comment.getCommentId())
+                .userId(user.getUserId())
+                .nickname(user.getNickname())
+                .content(comment.getContent())
+                .createdAt(comment.getCreatedAt())
+                .updatedAt(comment.getUpdatedAt())
+                .isOwner(true)
+                .build();
+    }
+
+    @Transactional
     public CommentDto updateComment(Long commentId, Long currentUserId, String newContent) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("댓글이 존재하지 않습니다."));
