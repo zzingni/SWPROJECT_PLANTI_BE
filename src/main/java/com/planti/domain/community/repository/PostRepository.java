@@ -12,14 +12,12 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
-    Page<Post> findByBoard_BoardId(Integer boardId, Pageable pageable);
-
-    // 페이징 없이 게시판 글만 조회
-    List<Post> findByBoardBoardIdAndStatus(Integer boardId, String status);
+    // 페이징 없는 게시글 조회 (active 상태만)
+    List<Post> findByBoard_BoardIdAndStatus(Integer boardId, String status);
 
     // 페이징 포함
-    Page<Post> findByBoardBoardIdAndStatus(Integer boardId, String status, Pageable pageable);
+    Page<Post> findByBoard_BoardIdAndStatus(Integer boardId, String status, Pageable pageable);
 
-    @Query("SELECT p FROM Post p JOIN FETCH p.comments WHERE p.id = :id")
+    @Query("SELECT p FROM Post p JOIN FETCH p.comments WHERE p.postId = :id")
     Post findByIdWithComments(@Param("id") Long id);
 }

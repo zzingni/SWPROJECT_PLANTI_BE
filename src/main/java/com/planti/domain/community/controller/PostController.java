@@ -107,7 +107,7 @@ public class PostController {
     // 테스트용: 게시판별 게시글 목록 조회
     @GetMapping("/test")
     public List<PostSummaryDto> testBoardPosts(@RequestParam Integer boardId) {
-        List<Post> posts = postRepository.findByBoardBoardIdAndStatus(boardId, "active");
+        List<Post> posts = postRepository.findByBoard_BoardIdAndStatus(boardId, "active");
 
         return posts.stream().map(post -> PostSummaryDto.builder()
                 .postId(post.getPostId())

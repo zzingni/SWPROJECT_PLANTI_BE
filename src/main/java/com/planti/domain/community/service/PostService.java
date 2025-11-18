@@ -56,7 +56,9 @@ public class PostService {
                 request.getSortBy()
         );
 
-        Page<Post> posts = postRepository.findByBoard_BoardId(request.getBoardId(), pageRequest);
+        Page<Post> posts = postRepository.findByBoard_BoardIdAndStatus(
+                request.getBoardId(), "active", pageRequest
+        );
 
         List<PostSummaryDto> content = posts.getContent().stream().map(post ->
                 PostSummaryDto.builder()
