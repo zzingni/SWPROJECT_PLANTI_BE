@@ -2,10 +2,16 @@ package com.planti.domain.plantCatalog.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class PlantDto {
+    private String id;
     private String name;            // 식물명
     private String scientificName;  // 식물학명
     private String family;          // 과목
