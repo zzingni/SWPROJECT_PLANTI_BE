@@ -15,6 +15,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -184,6 +185,25 @@ public class GardenService {
             log.error("gardenDtl 호출 실패: {}", cntntsNo, e);
             throw new RuntimeException("gardenDtl 호출 실패: " + cntntsNo, e);
         }
+    }
+
+    public List<PlantDto> searchByName(String name, int pageNo, int numOfRows) {
+        if (name == null) name = "";
+        name = name.trim();
+
+        Map<String, String> params = new HashMap<>();
+        // sample URL 기반 파라미터들 (필요하면 더 추가)
+        params.put("cntntsNo", "");                     // 비워도 됨
+        params.put("pageNo", Integer.toString(pageNo));
+        params.put("numOfRows", Integer.toString(numOfRows));
+        params.put("word", "");                         // 비워도 됨
+        params.put("sType", "sCntntsSj");               // 제목 검색
+        params.put("sText", name);                      // <-- 여기에 프론트에서 온 이름
+        params.put("wordType", "cntntsSj");
+        params.put("priceTypeSel", "");
+        params.put("waterCycleSel", "");
+
+        return getGardenList(params);
     }
 
     // ----------------- 유틸 -----------------
