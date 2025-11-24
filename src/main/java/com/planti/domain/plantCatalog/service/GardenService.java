@@ -237,13 +237,4 @@ public class GardenService {
         return null;
     }
 
-    private List<String> splitToList(String raw) {
-        if (raw == null || raw.isBlank()) return List.of();
-        String[] parts = raw.split("\\|");
-        List<String> out = new ArrayList<>();
-        for (String p : parts) {
-            if (!p.isBlank()) out.add(p);
-        }
-        return out;
-    }
 }
