@@ -101,20 +101,40 @@ public class GardenService {
             for (JsonNode item : iterateItems(root)) {
                 String id = safeText(item, "cntntsNo");
                 String name = safeText(item, "cntntsSj");
-                // 목록에 과학명/가족명 없을 가능성 높음 (빈값 혹은 상세 API 필요)
-                String scientificName = safeText(item, "plntbneNm"); // 목록엔 없음
-                String family = safeText(item, "fmlNm");
-
-                // 이미지/캡션 분리
-                List<String> imageUrls = splitToList(safeText(item, "rtnFileUrl"));
-                List<String> imageCaptions = splitToList(safeText(item, "rtnImageDc"));
 
                 PlantDto p = new PlantDto();
                 p.setId(id);
                 p.setName(name);
-                p.setScientificName(scientificName);
-                p.setFamily(family);
-                // 기타 필드는 상세 API로 채우는게 안정적
+
+                // 목록 응답에서 채울 수 있는 필드가 있으면 설정
+                p.setScientificName(safeText(item, "plntbneNm"));
+                p.setFamily(safeText(item, "fmlNm"));
+
+                // 상세 정보가 필요하면 상세 API 호출해서 비어있는 필드 채우기
+                if (id != null && !id.isBlank()) {
+                    try {
+                        PlantDto detail = getGardenDetail(id);
+                        // detail의 값이 비어있지 않으면 p에 덮어쓰기 (우선순위: 상세 > 목록)
+                        if (detail != null) {
+                            if (p.getScientificName() == null || p.getScientificName().isBlank())
+                                p.setScientificName(detail.getScientificName());
+                            if (p.getFamily() == null || p.getFamily().isBlank())
+                                p.setFamily(detail.getFamily());
+
+                            // 기타 필드 전부 병합
+                            p.setWatering(nonEmpty(p.getWatering(), detail.getWatering()));
+                            p.setTemperature(nonEmpty(p.getTemperature(), detail.getTemperature()));
+                            p.setHumidity(nonEmpty(p.getHumidity(), detail.getHumidity()));
+                            p.setPestControl(nonEmpty(p.getPestControl(), detail.getPestControl()));
+                            p.setFunctionality(nonEmpty(p.getFunctionality(), detail.getFunctionality()));
+                            p.setSpecialCare(nonEmpty(p.getSpecialCare(), detail.getSpecialCare()));
+                            p.setToxicity(nonEmpty(p.getToxicity(), detail.getToxicity()));
+                        }
+                    } catch (Exception e) {
+                        log.warn("상세 호출 실패 (병합 생략): {}", id, e);
+                    }
+                }
+
                 plants.add(p);
             }
             return plants;
@@ -122,6 +142,12 @@ public class GardenService {
             log.error("gardenList 호출 실패", e);
             throw new RuntimeException("gardenList 호출 실패", e);
         }
+    }
+
+    private String nonEmpty(String a, String b) {
+        if (a != null && !a.isBlank()) return a;
+        if (b != null && !b.isBlank()) return b;
+        return "";
     }
 
     // 3) gardenDtl -> 단건 상세 (cntntsNo 필수) — 기존과 거의 동일, 안전한 fallback 유지
