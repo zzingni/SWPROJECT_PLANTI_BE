@@ -7,10 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/garden")
@@ -22,18 +19,11 @@ public class GardenController {
     @PostMapping("/search")
     public ResponseEntity<List<PlantDto>> searchByNamePost(
             @Valid @RequestBody PlantNameDto dto,
-            @RequestParam(value = "pageNo", defaultValue = "1") String pageNo,
-            @RequestParam(value = "numOfRows", defaultValue = "10") String numOfRows
+            @RequestParam(value = "pageNo", defaultValue = "1") int pageNo,
+            @RequestParam(value = "numOfRows", defaultValue = "10") int numOfRows
     ) {
-        String name = dto.getPlantName() == null ? "" : dto.getPlantName().trim();
-
-        Map<String, String> params = new HashMap<>();
-        params.put("sType", "cntntsSj");
-        params.put("sText", name);
-        params.put("pageNo", pageNo);
-        params.put("numOfRows", numOfRows);
-
-        List<PlantDto> result = service.getGardenList(params);
+        // 서비스 메서드에 DTO 그대로 전달
+        List<PlantDto> result = service.searchByName(dto, pageNo, numOfRows);
         return ResponseEntity.ok(result);
     }
 }

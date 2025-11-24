@@ -3,6 +3,7 @@ package com.planti.domain.plantCatalog.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.planti.domain.plantCatalog.dto.CodeDto;
 import com.planti.domain.plantCatalog.dto.PlantDto;
+import com.planti.domain.plantCatalog.dto.PlantNameDto;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,25 +77,7 @@ public class GardenService {
         }
     }
 
-    // 1) 코드 목록 공통 처리: e.g. /lightList, /grwhstleList ...
-    public List<CodeDto> getCodeList(String endpoint) {
-        try {
-            JsonNode root = callXmlApi("/" + endpoint, null);
-            List<CodeDto> result = new ArrayList<>();
-            for (JsonNode item : iterateItems(root)) {
-                // TODO: 엔드포인트별 실제 태그명을 사용해야 함
-                String code = safeText(item, "code");       // 필요시 바꿔라
-                String codeNm = safeText(item, "codeNm");   // 필요시 바꿔라
-                result.add(new CodeDto(code, codeNm));
-            }
-            return result;
-        } catch (Exception e) {
-            log.error("코드 목록 조회 실패: {}", endpoint, e);
-            throw new RuntimeException("코드 목록 조회 실패: " + endpoint, e);
-        }
-    }
-
-    // 2) gardenList -> PlantDto 리스트
+    // gardenList -> PlantDto 리스트
     public List<PlantDto> getGardenList(Map<String, String> queryParams) {
         try {
             JsonNode root = callXmlApi("/gardenList", queryParams);
@@ -187,18 +170,18 @@ public class GardenService {
         }
     }
 
-    public List<PlantDto> searchByName(String name, int pageNo, int numOfRows) {
+    public List<PlantDto> searchByName(PlantNameDto plantNameDto, int pageNo, int numOfRows) {
+        String name = plantNameDto.getPlantName();  // DTO에서 값 꺼내기
         if (name == null) name = "";
         name = name.trim();
 
         Map<String, String> params = new HashMap<>();
-        // sample URL 기반 파라미터들 (필요하면 더 추가)
-        params.put("cntntsNo", "");                     // 비워도 됨
+        params.put("cntntsNo", "");
         params.put("pageNo", Integer.toString(pageNo));
         params.put("numOfRows", Integer.toString(numOfRows));
-        params.put("word", "");                         // 비워도 됨
-        params.put("sType", "sCntntsSj");               // 제목 검색
-        params.put("sText", name);                      // <-- 여기에 프론트에서 온 이름
+        params.put("word", "");
+        params.put("sType", "sCntntsSj");
+        params.put("sText", name);  // DTO에서 가져온 값 사용
         params.put("wordType", "cntntsSj");
         params.put("priceTypeSel", "");
         params.put("waterCycleSel", "");
