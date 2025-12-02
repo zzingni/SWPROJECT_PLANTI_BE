@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 public class MyPostDto {
     private Long postId;
+    private String boardName;
     private String title;
     private LocalDateTime createdAt;
 }

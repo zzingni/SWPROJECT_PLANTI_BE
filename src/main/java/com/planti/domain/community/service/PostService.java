@@ -265,6 +265,7 @@ public class PostService {
                 .stream()
                 .map(p -> MyPostDto.builder()
                         .postId(p.getPostId())
+                        .boardName(p.getBoard().getBoardName())
                         .title(p.getTitle())
                         .createdAt(p.getCreatedAt())
                         .build())
