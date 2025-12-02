@@ -4,9 +4,7 @@ import com.planti.domain.community.dto.request.BoardPostsRequest;
 import com.planti.domain.community.dto.request.CreatePostRequest;
 import com.planti.domain.community.dto.request.PostLikeRequest;
 import com.planti.domain.community.dto.request.PostUpdateRequest;
-import com.planti.domain.community.dto.response.PagedResponse;
-import com.planti.domain.community.dto.response.PostDetailDto;
-import com.planti.domain.community.dto.response.PostSummaryDto;
+import com.planti.domain.community.dto.response.*;
 import com.planti.domain.community.entity.Post;
 import com.planti.domain.community.repository.PostRepository;
 import com.planti.domain.community.service.PostService;
@@ -102,6 +100,18 @@ public class PostController {
     @PostMapping("/like")
     public void likePost(@RequestBody PostLikeRequest request) {
         postService.toggleLike(request.getPostId(), request.getUserId());
+    }
+
+    // 내가 쓴 게시글
+    @GetMapping("/my/posts")
+    public List<MyPostDto> getMyPosts(@AuthenticationPrincipal User currentUser) {
+        return postService.getMyPosts(currentUser.getUserId());
+    }
+
+    // 내가 쓴 댓글
+    @GetMapping("/my/comments")
+    public List<MyCommentDto> getMyComments(@AuthenticationPrincipal User currentUser) {
+        return postService.getMyComments(currentUser.getUserId());
     }
 
     // 테스트용: 게시판별 게시글 목록 조회

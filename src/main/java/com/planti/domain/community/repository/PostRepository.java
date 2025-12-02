@@ -20,4 +20,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p FROM Post p JOIN FETCH p.comments WHERE p.postId = :id")
     Post findByIdWithComments(@Param("id") Long id);
+
+    // 내가 쓴 게시글 조회
+    List<Post> findByUser_UserId(Long userId);
 }

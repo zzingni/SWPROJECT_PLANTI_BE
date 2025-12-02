@@ -7,4 +7,8 @@ import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByPost_PostId(Long postId);
+
+    // 내가 쓴 댓글 조회
+    List<Comment> findByUser_UserId(Long userId);
+
 }

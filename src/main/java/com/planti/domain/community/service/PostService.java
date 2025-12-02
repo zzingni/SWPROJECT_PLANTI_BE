@@ -3,10 +3,7 @@ package com.planti.domain.community.service;
 import com.planti.domain.community.dto.request.BoardPostsRequest;
 import com.planti.domain.community.dto.request.CreatePostRequest;
 import com.planti.domain.community.dto.request.PostUpdateRequest;
-import com.planti.domain.community.dto.response.CommentDto;
-import com.planti.domain.community.dto.response.PagedResponse;
-import com.planti.domain.community.dto.response.PostDetailDto;
-import com.planti.domain.community.dto.response.PostSummaryDto;
+import com.planti.domain.community.dto.response.*;
 import com.planti.domain.community.entity.Comment;
 import com.planti.domain.community.entity.Post;
 import com.planti.domain.community.entity.PostLike;
@@ -195,6 +192,7 @@ public class PostService {
         }
     }
 
+    // 댓글 생성
     @Transactional
     public CommentDto createComment(Long postId, Long userId, String content) {
         Post post = postRepository.findById(postId)
@@ -223,6 +221,7 @@ public class PostService {
                 .build();
     }
 
+    // 댓글 수정
     @Transactional
     public CommentDto updateComment(Long commentId, Long currentUserId, String newContent) {
         Comment comment = commentRepository.findById(commentId)
@@ -247,6 +246,7 @@ public class PostService {
                 .build();
     }
 
+    // 댓글 삭제
     @Transactional
     public void deleteComment(Long commentId, Long currentUserId) {
         Comment comment = commentRepository.findById(commentId)
@@ -257,5 +257,31 @@ public class PostService {
         }
 
         commentRepository.delete(comment);
+    }
+
+    // 내가 쓴 게시글 목록
+    public List<MyPostDto> getMyPosts(Long userId) {
+        return postRepository.findByUser_UserId(userId)
+                .stream()
+                .map(p -> MyPostDto.builder()
+                        .postId(p.getPostId())
+                        .title(p.getTitle())
+                        .createdAt(p.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    // 내가 쓴 댓글 목록
+    public List<MyCommentDto> getMyComments(Long userId) {
+        return commentRepository.findByUser_UserId(userId)
+                .stream()
+                .map(c -> MyCommentDto.builder()
+                        .commentId(c.getCommentId())
+                        .postId(c.getPost().getPostId())
+                        .postTitle(c.getPost().getTitle())
+                        .content(c.getContent())
+                        .createdAt(c.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
     }
 }
