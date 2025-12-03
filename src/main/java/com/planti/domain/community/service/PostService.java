@@ -119,6 +119,12 @@ public class PostService {
     // 게시글 생성
     @Transactional
     public Post createPost(CreatePostRequest request) {
+
+        String imageUrl = request.getImageUrl();
+        if (imageUrl == null || imageUrl.isBlank()) {
+            imageUrl = null; // 이미지 없는 경우 DB 허용
+        }
+
         Post post = Post.builder()
                 .board(boardRepository.findById(request.getBoardId())
                         .orElseThrow(() -> new RuntimeException("Board not found")))
@@ -126,7 +132,7 @@ public class PostService {
                         .orElseThrow(() -> new RuntimeException("User not found")))
                 .title(request.getTitle())
                 .content(request.getContent())
-                .imageUrl(request.getImageUrl())
+                .imageUrl(imageUrl)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .status("active")

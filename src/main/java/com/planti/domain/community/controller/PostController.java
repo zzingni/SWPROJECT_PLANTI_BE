@@ -9,10 +9,16 @@ import com.planti.domain.community.entity.Post;
 import com.planti.domain.community.repository.PostRepository;
 import com.planti.domain.community.service.PostService;
 import com.planti.domain.user.entity.User;
+import com.planti.global.s3.S3Uploader;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -22,6 +28,7 @@ public class PostController {
 
     private final PostService postService;
     private final PostRepository postRepository;
+    private final S3Uploader s3Uploader;
 
     // 게시판 탭 클릭 → 게시글 목록 조회
     @GetMapping
@@ -112,6 +119,15 @@ public class PostController {
     @GetMapping("/my/comments")
     public List<MyCommentDto> getMyComments(@AuthenticationPrincipal User currentUser) {
         return postService.getMyComments(currentUser.getUserId());
+    }
+
+    // 이미지 업로드
+    @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, String>> uploadImage(
+            @RequestPart("image") MultipartFile image
+    ) {
+        String imageUrl = s3Uploader.upload(image, "post");
+        return ResponseEntity.ok(Map.of("imageUrl", imageUrl));
     }
 
     // 테스트용: 게시판별 게시글 목록 조회
