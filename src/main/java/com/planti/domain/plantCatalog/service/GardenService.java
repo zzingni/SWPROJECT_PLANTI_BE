@@ -106,7 +106,8 @@ public class GardenService {
                                 p.setFamily(detail.getFamily());
 
                             // 기타 필드 전부 병합
-                            p.setWatering(nonEmpty(p.getWatering(), detail.getWatering()));
+                            // p.setWatering(nonEmpty(p.getWatering(), detail.getWatering()));
+                            p.setWatering(detail.getWatering());
                             p.setTemperature(nonEmpty(p.getTemperature(), detail.getTemperature()));
                             p.setHumidity(nonEmpty(p.getHumidity(), detail.getHumidity()));
                             p.setPestControl(nonEmpty(p.getPestControl(), detail.getPestControl()));
@@ -150,7 +151,7 @@ public class GardenService {
             dto.setName(safeText(item, "cntntsSj"));
             dto.setScientificName(safeText(item, "plntbneNm"));
             dto.setFamily(safeText(item, "fmlNm"));
-            dto.setWatering(joinIfNotBlank(
+            dto.setWatering(firstNotBlank(
                     safeText(item, "watercycleSprngCodeNm"),
                     safeText(item, "watercycleSummerCodeNm"),
                     safeText(item, "watercycleAutumnCodeNm"),
@@ -168,6 +169,15 @@ public class GardenService {
             log.error("gardenDtl 호출 실패: {}", cntntsNo, e);
             throw new RuntimeException("gardenDtl 호출 실패: " + cntntsNo, e);
         }
+    }
+
+    private String firstNotBlank(String... values) {
+        for (String v : values) {
+            if (v != null && !v.isBlank()) {
+                return v;
+            }
+        }
+        return "";
     }
 
     public List<PlantDto> searchByName(PlantNameDto plantNameDto, int pageNo, int numOfRows) {
@@ -216,17 +226,6 @@ public class GardenService {
         JsonNode f = node.get(field);
         if (f == null || f.isMissingNode()) return "";
         return f.asText("");
-    }
-
-    private String joinIfNotBlank(String... parts) {
-        StringBuilder sb = new StringBuilder();
-        for (String p : parts) {
-            if (p != null && !p.isBlank()) {
-                if (sb.length() > 0) sb.append(" / ");
-                sb.append(p);
-            }
-        }
-        return sb.toString();
     }
 
     private JsonNode findFirstItemNode(JsonNode root) {
