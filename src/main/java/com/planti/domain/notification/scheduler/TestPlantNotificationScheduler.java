@@ -38,7 +38,7 @@ public class TestPlantNotificationScheduler {
         Long userId = 14L; // 알림 테스트할 유저 ID
         List<UserPlant> plants = userPlantRepository.findAllWithUser(userId);
         if (plants.isEmpty()) {
-            System.out.println("UserId " + userId + " has no plants. Skipping notification.");
+               System.out.println("UserId " + userId + " has no plants. Skipping notification.");
             return; // 혹은 continue if 여러 유저 반복문일 경우
         }
         LocalDateTime now = LocalDateTime.now();
