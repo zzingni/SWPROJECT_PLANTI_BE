@@ -57,8 +57,8 @@ public class TestPlantNotificationScheduler {
                 if (user.getFcmToken() != null) {
                     System.out.println("Sending FCM to token: " + user.getFcmToken());
                     sendFcm(user.getFcmToken(),
-                            "테스트 물 주기 알림",
-                            plant.getNickname() + "에게 물을 주세요! (테스트)");
+                            "반려식물이 목이 마르대요!",
+                            plant.getNickname() + "에게 물을 주세요!");
                     Notification notification = Notification.builder()
                             .user(user)
                             .userPlant(plant)

@@ -65,7 +65,7 @@ public class TestEnvironmentNotificationScheduler {
                 }
             }
 
-            String title = "환경 알림 (테스트)";
+            String title = "환경을 확인해주세요!";
             String body;
             String subType;
 
