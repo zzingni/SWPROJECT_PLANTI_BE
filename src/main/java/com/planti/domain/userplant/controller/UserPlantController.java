@@ -3,6 +3,7 @@ package com.planti.domain.userplant.controller;
 import com.planti.domain.user.entity.User;
 import com.planti.domain.user.repository.UserRepository;
 import com.planti.domain.userplant.dto.request.UserPlantRequestDto;
+import com.planti.domain.userplant.entity.UserPlant;
 import com.planti.domain.userplant.repository.UserPlantRepository;
 import com.planti.domain.userplant.service.UserPlantService;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +21,17 @@ public class UserPlantController {
     private final UserPlantService userPlantService;
 
     @PostMapping
-    public ResponseEntity<Map<String, String>> addUserPlant(@RequestBody UserPlantRequestDto requestDto,
-                                                            @AuthenticationPrincipal User user) {
+    public ResponseEntity<Map<String, Object>> addUserPlant(
+            @RequestBody UserPlantRequestDto requestDto,
+            @AuthenticationPrincipal User user) {
 
-        userPlantService.saveUserPlant(user, requestDto);
+        UserPlant saved = userPlantService.saveUserPlant(user, requestDto);
 
-        Map<String, String> response = new HashMap<>();
-        response.put("plantNickName", requestDto.getNickname());
+        Map<String, Object> response = new HashMap<>();
+        response.put("companionPlantId", saved.getCompanionPlantId());
+        response.put("plantId", saved.getPlant().getPlantId());        // 도감 식물 ID
+        response.put("nickname", saved.getNickname());
+        response.put("wateringCycle", saved.getWateringCycle().name());
 
         return ResponseEntity.ok(response);
     }
