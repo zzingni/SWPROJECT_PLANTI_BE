@@ -7,5 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class WateringHistoryRequest {
+public class WateringHistoryCreateRequest {
+    private long companionPlantId;
+    private String wateringStatus;
 }
