@@ -17,7 +17,7 @@ public class WateringHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="watering_history_id")
-    private long wateringHistoryId;
+    private Long wateringHistoryId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="companion_plant_id", nullable = false)

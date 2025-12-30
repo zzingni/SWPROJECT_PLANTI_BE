@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class WateringHistoryResponse {
-    private long wateringHistoryId;
-    private long companionPlantId;
+    private Long wateringHistoryId;
+    private Long companionPlantId;
     private LocalDateTime wateringDate;
     private String wateringStatus;
 }

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserPlantRepository extends JpaRepository<UserPlant, Integer> {
+public interface UserPlantRepository extends JpaRepository<UserPlant, Long> {
     Optional<UserPlant> findByUser_UserId(Long userId);
 
     @Query("SELECT up FROM UserPlant up JOIN FETCH up.user u WHERE u.userId = :userId")

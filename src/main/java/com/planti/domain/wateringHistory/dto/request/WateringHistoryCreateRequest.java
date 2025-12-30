@@ -8,6 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class WateringHistoryCreateRequest {
-    private long companionPlantId;
+    private Long companionPlantId;
     private String wateringStatus;
 }
