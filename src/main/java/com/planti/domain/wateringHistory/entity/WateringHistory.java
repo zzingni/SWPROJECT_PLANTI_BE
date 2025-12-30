@@ -15,11 +15,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class WateringHistory {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="watering_history_id")
     private long wateringHistoryId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name="companion_plant_id")
+    @JoinColumn(name="companion_plant_id", nullable = false)
     private UserPlant companionPlant;
 
     @Column(name="watering_date")
