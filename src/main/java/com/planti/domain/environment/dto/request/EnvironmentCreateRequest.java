@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotNull;
 
 // esp32 > 서버 dto
 public record EnvironmentCreateRequest(
-
         @NotNull
         Double temperature,
 
