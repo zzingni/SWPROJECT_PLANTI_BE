@@ -8,6 +8,7 @@ import com.planti.domain.user.entity.User;
 import com.planti.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,10 +17,12 @@ public class EnvironmentService {
     private final EnvironmentRepository environmentRepository;
     private final UserRepository userRepository;
 
-    public EnvironmentResponse create(EnvironmentCreateRequest req) {
+    private static final Long ENV_USER_ID = 1L;
 
-        User user = userRepository.findById(1L)
-                .orElseThrow(() -> new IllegalStateException("환경 사용자 없음. user_id=1")); // user_id 고정
+    @Transactional
+    public EnvironmentResponse create(EnvironmentCreateRequest req) {
+        User user = userRepository.findById(ENV_USER_ID)
+                .orElseThrow(() -> new IllegalStateException("환경 사용자 없음. user_id=" + ENV_USER_ID));
 
         Environment env = new Environment();
         env.setUser(user);
