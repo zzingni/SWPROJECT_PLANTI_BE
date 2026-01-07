@@ -45,9 +45,9 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/swagger-resources/**",
-                                "/webjars/**",
-                                "/api/environments/**"
+                                "/webjars/**"
                         ).permitAll()
+                        .requestMatchers("/api/environments/**").permitAll()
                         // OAuth2 로그인 흐름/콜백 허용
                         .requestMatchers("/oauth2/**", "/login/oauth2/**", "/login/oauth2/code/**").permitAll()
                         // 회원가입(인증 필요 없음)

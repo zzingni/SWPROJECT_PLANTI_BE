@@ -35,7 +35,7 @@ public class TestPlantNotificationScheduler {
     @Scheduled(cron = "0 * * * * ?")
     @Transactional
     public void sendWaterNotifications() {
-        Long userId = 14L; // 알림 테스트할 유저 ID
+        Long userId = 28L; // 알림 테스트할 유저 ID
         List<UserPlant> plants = userPlantRepository.findAllWithUser(userId);
         if (plants.isEmpty()) {
                System.out.println("UserId " + userId + " has no plants. Skipping notification.");

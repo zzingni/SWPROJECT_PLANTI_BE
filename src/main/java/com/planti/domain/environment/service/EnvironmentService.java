@@ -17,7 +17,7 @@ public class EnvironmentService {
     private final EnvironmentRepository environmentRepository;
     private final UserRepository userRepository;
 
-    private static final Long ENV_USER_ID = 27L;
+    private static final Long ENV_USER_ID = 28L;
 
     @Transactional
     public EnvironmentResponse create(EnvironmentCreateRequest req) {

@@ -21,7 +21,7 @@ public class EnvironmentNotificationScheduler {
 
     private static final double THRESHOLD = 5.0;          // ±5
     // private static final long COOLDOWN_MINUTES = 10L;      // 같은 타입 알림 쿨다운
-    public static final Long TEST_USER_ID = 27L;          // 임시 user_id
+    public static final Long TEST_USER_ID = 28L;          // 임시 user_id
 
     private final UserPlantRepository userPlantRepository;
     private final NotificationRepository notificationRepository;
