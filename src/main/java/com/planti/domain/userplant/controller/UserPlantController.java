@@ -3,6 +3,7 @@ package com.planti.domain.userplant.controller;
 import com.planti.domain.user.entity.User;
 import com.planti.domain.user.repository.UserRepository;
 import com.planti.domain.userplant.dto.request.UserPlantRequestDto;
+import com.planti.domain.userplant.dto.response.UserPlantResponseDto;
 import com.planti.domain.userplant.entity.UserPlant;
 import com.planti.domain.userplant.repository.UserPlantRepository;
 import com.planti.domain.userplant.service.UserPlantService;
@@ -12,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -34,5 +36,10 @@ public class UserPlantController {
         response.put("wateringCycle", saved.getWateringCycle().name());
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UserPlantResponseDto>> getMyPlants(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(userPlantService.getMyPlants(user));
     }
 }

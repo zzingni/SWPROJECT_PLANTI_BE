@@ -6,6 +6,7 @@ import com.planti.domain.plant.repository.PlantRepository;
 import com.planti.domain.user.entity.User;
 import com.planti.domain.user.repository.UserRepository;
 import com.planti.domain.userplant.dto.request.UserPlantRequestDto;
+import com.planti.domain.userplant.dto.response.UserPlantResponseDto;
 import com.planti.domain.userplant.entity.UserPlant;
 import com.planti.domain.userplant.repository.UserPlantRepository;
 import com.planti.global.exception.ResourceNotFoundException;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -54,6 +56,17 @@ public class UserPlantService {
 
         // 5. 저장
         return userPlantRepository.save(userPlant);
+    }
+
+    public List<UserPlantResponseDto> getMyPlants(User user) {
+        return userPlantRepository.findByUser(user).stream()
+                .map(p -> UserPlantResponseDto.builder()
+                        .companionPlantId(p.getCompanionPlantId())
+                        .plantId(p.getPlant().getPlantId())
+                        .nickname(p.getNickname())
+                        .wateringCycle(p.getWateringCycle().name())
+                        .build())
+                .toList();
     }
 
     @Transactional(readOnly = true)

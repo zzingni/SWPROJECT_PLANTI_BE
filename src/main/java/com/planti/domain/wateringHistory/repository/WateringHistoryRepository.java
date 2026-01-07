@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface WateringHistoryRepository extends JpaRepository<WateringHistory,Long> {
     List<WateringHistory> findByCompanionPlant_CompanionPlantIdOrderByWateringDateDesc(Long companionPlantId);
+
 }

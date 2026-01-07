@@ -1,5 +1,6 @@
 package com.planti.domain.userplant.repository;
 
+import com.planti.domain.user.entity.User;
 import com.planti.domain.userplant.entity.UserPlant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +19,6 @@ public interface UserPlantRepository extends JpaRepository<UserPlant, Long> {
 
     @Query("SELECT up FROM UserPlant up JOIN FETCH up.user u WHERE up.status = 'ACTIVE'")
     List<UserPlant> findAllActiveWithUser();
+
+    List<UserPlant> findByUser(User user);
 }
