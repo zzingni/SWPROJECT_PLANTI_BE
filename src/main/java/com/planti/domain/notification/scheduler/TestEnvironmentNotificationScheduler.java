@@ -27,7 +27,7 @@ public class TestEnvironmentNotificationScheduler {
         this.notificationRepository = notificationRepository;
     }
 
-    // 테스트용 >> 2분마다 실행
+    // 테스트용 >> 1분마다 실행
     @Scheduled(cron = "0 */2 * * * ?")
     @Transactional
     public void sendEnvironmentNotifications() {

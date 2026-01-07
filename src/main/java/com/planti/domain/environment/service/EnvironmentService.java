@@ -17,7 +17,7 @@ public class EnvironmentService {
     private final EnvironmentRepository environmentRepository;
     private final UserRepository userRepository;
 
-    private static final Long ENV_USER_ID = 1L;
+    private static final Long ENV_USER_ID = 27L;
 
     @Transactional
     public EnvironmentResponse create(EnvironmentCreateRequest req) {
@@ -38,4 +38,13 @@ public class EnvironmentService {
                 saved.getRecordedAt()
         );
     }
+
+    public EnvironmentResponse getLatest(Long userId) {
+        Environment env = environmentRepository
+                .findTopByUser_UserIdOrderByRecordedAtDesc(userId)
+                .orElseThrow();
+
+        return EnvironmentResponse.from(env);
+    }
+
 }

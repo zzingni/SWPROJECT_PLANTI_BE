@@ -23,40 +23,22 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
 
-    /** Swagger/공개 경로는 필터 제외 */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String u = request.getRequestURI();
-        /*return
-                // Swagger & infra
-                !(u.startsWith("/v3/api-docs") ||
-                        u.startsWith("/swagger-ui") ||
-                        u.startsWith("/swagger-resources") ||
-                        u.startsWith("/webjars") ||
-                        u.equals("/swagger-ui.html") ||
-                        u.equals("/actuator/health") ||
-                        u.equals("/error") ||
-                        u.equals("/favicon.ico") ||
 
-                        // Public APIs
-                        u.startsWith("/api/auth") ||
-                        u.startsWith("/api/wordbooks/dict") ||
-                        u.startsWith("/api/words") ||
-                        u.startsWith("/api/scraps") ||
-                        u.startsWith("/api/feedback") ||
-                        u.startsWith("/api/wordbook") ||
-                        u.equals("/test"));*/
-
-        return false;
+        // ESP32 환경 데이터 업로드는 필터 제외
+        return u.startsWith("/api/environments");
     }
+
 
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
 
+    ) throws ServletException, IOException {
         log.info("AuthenticationFilter 호출됨: {}", request.getRequestURI());
 
         String accessToken = HeaderUtil.getAccessTokenFromHeader(request);
